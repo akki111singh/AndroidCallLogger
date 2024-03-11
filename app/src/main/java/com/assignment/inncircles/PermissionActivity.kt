@@ -3,6 +3,7 @@ package com.assignment.inncircles
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -12,10 +13,21 @@ import androidx.core.content.ContextCompat
 
 class PermissionActivity : ComponentActivity() {
 
-    private val conferencePermissions = arrayOf(
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.READ_CALL_LOG,
-    )
+    private val conferencePermissions = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+        // For Android version 32 or less, only request external storage permission
+        arrayOf(
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    } else {
+        // For other Android versions, request all permissions
+        arrayOf(
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.READ_MEDIA_AUDIO,
+        )
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -46,6 +58,7 @@ class PermissionActivity : ComponentActivity() {
         setContent {
             val mainActivityIntent = Intent(this, MainActivity::class.java)
             startActivity(mainActivityIntent)
+            finish()
         }
     }
 
